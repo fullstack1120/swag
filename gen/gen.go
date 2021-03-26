@@ -240,6 +240,7 @@ func (g *Gen) writeGoDoc(packageName string, output io.Writer, swagger *spec.Swa
 		Title         string
 		Description   string
 		Version       string
+		OutputDir     string
 	}{
 		Timestamp:     time.Now(),
 		GeneratedTime: config.GeneratedTime,
@@ -251,6 +252,7 @@ func (g *Gen) writeGoDoc(packageName string, output io.Writer, swagger *spec.Swa
 		Title:         swagger.Info.Title,
 		Description:   swagger.Info.Description,
 		Version:       swagger.Info.Version,
+		OutputDir:     config.OutputDir,
 	})
 	if err != nil {
 		return err
@@ -325,6 +327,7 @@ func (g *Gen) writeGoDocTmpl(packageName string, output io.Writer, swagger *spec
 		Title         string
 		Description   string
 		Version       string
+		OutputDir     string
 	}{
 		Timestamp:     time.Now(),
 		GeneratedTime: config.GeneratedTime,
@@ -336,6 +339,7 @@ func (g *Gen) writeGoDocTmpl(packageName string, output io.Writer, swagger *spec
 		Title:         swagger.Info.Title,
 		Description:   swagger.Info.Description,
 		Version:       swagger.Info.Version,
+		OutputDir:     config.OutputDir,
 	})
 	if err != nil {
 		return err
@@ -356,6 +360,7 @@ package {{.PackageName}}
 import (
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
 	"strings"
 	"text/template"
 
@@ -389,12 +394,17 @@ func (s *s) ReadDoc() string {
 	sInfo := SwaggerInfo
 	sInfo.Description = strings.Replace(sInfo.Description, "\n", "\\n", -1)
 
+	content, err := ioutil.ReadFile("{{ .OutputDir }}/tmpl.txt")
+	if err != nil {
+		return doc
+	}
+
 	t, err := template.New("swagger_info").Funcs(template.FuncMap{
 		"marshal": func(v interface{}) string {
 			a, _ := json.Marshal(v)
 			return string(a)
 		},
-	}).ParseFiles("tmpl.txt")
+	}).Parse(string(content))
 	if err != nil {
 		return doc
 	}
