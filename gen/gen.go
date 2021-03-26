@@ -359,7 +359,7 @@ import (
 	"strings"
 	"text/template"
 
-	""github.com/fullstack1120/swag"
+	"github.com/fullstack1120/swag"
 )
 
 var doc = ` + "`{{ printDoc .Doc}}`" + `
@@ -394,7 +394,7 @@ func (s *s) ReadDoc() string {
 			a, _ := json.Marshal(v)
 			return string(a)
 		},
-	}).Parse(doc)
+	}).ParseFiles("tmpl.txt")
 	if err != nil {
 		return doc
 	}
